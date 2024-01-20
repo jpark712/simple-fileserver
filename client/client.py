@@ -2,6 +2,7 @@ import os
 
 import click
 import requests
+import datetime
 
 HOSTNAME = 'localhost'
 PORT = '8000'
@@ -14,7 +15,8 @@ def send_file_or_directory(filepath):
 
     # If the path is a directory, we'll only send files in the top level.
     # Currently we only send the files in the directory.  The server
-    # does not create the directory and put the files inside it.
+    # does not create the directory and put the files inside it.  It just sends
+    # the files within the directory at the server SAVE_FILEPATH location
     # TODO: Add support for -r
 
     # Count Files.  If > 9 files, get confirmation before sending
@@ -42,10 +44,15 @@ def send_file_or_directory(filepath):
 
 
 def send_file(filepath):
+    file_size = os.path.getsize(filepath)
+    click.echo(f'File size is {file_size} bytes')
     files = {'file': open(filepath, 'rb')}
-    click.echo(f'Sending {os.path.abspath(click.format_filename(filepath))}', nl=False)
+    click.echo(f'Sending {os.path.abspath(click.format_filename(filepath))} ...', nl=False)
+    before_timestamp = datetime.datetime.now()
     req = requests.post(f'http://{HOSTNAME}:{PORT}/files', files=files)
-    click.echo(f' ...Done')
+    time_to_send = datetime.datetime.now() - before_timestamp
+    bytes_per_second = file_size / time_to_send.total_seconds()
+    click.echo(f' Done ({round(bytes_per_second)} bytes per second)')
 
 
 if __name__ == '__main__':

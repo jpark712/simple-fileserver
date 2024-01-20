@@ -28,7 +28,6 @@ Update `SAVE_FILEPATH` in `main.py` to update this
 
 ### Setting up the Client (modify script)
 
- - Update `FILENAME` with path to filename.  Can be relative if in the CWD, or full path otherwise.
  - Update `HOSTNAME` with the HOSTNAME or IP Address.
 
 ### Setting up virtual env (needs to be done once)
@@ -56,5 +55,33 @@ Update `SAVE_FILEPATH` in `main.py` to update this
    ```
  - Run script
    ```
-   python client.py
+   python client.py [Path To File/Directory]
+   ```
+
+### Running tests
+ - Switch to tests directory
+   ```
+   cd tests
+   ```
+ - Create a virtual environment for running tests (one time only)
+   ```
+   virtualenv venv
+   ```
+ - Activate virtual environment for running tests
+   ```
+   source venv/bin/activate
+   ```
+ - Install requirements
+   ```
+   pip install -r ../server/requirements.txt
+   pip install -r ../client/requirements.txt
+   pip install pytest
+   ```
+ - Run pytest
+   ```
+   pytest
+   ```
+   To see console output on passing tests run:
+   ```
+   pytest -s
    ```

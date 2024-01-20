@@ -1,9 +1,8 @@
-import os.path
+import os
 import shutil
-from pathlib import Path
-
 from fastapi import FastAPI
 from fastapi import UploadFile
+from pathlib import Path
 
 app = FastAPI()
 SAVE_FILEPATH = "/tmp/simple-fileserver/"
@@ -23,4 +22,5 @@ def upload_file(file: UploadFile):
             shutil.copyfileobj(file.file, destination)
     finally:
         file.file.close()
+        print(f'Copying {full_path}')
     return {"filename": file.filename}
