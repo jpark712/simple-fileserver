@@ -11,7 +11,7 @@ PORT = '8000'
 @click.command()
 @click.argument('filepath', type=click.Path(exists=True))
 def send_file_or_directory(filepath):
-    """Send file or directory if it exists"""
+    """ Send file or directory if it exists """
 
     # If the path is a directory, we'll only send files in the top level.
     # Currently we only send the files in the directory.  The server
@@ -51,8 +51,33 @@ def send_file(filepath):
     before_timestamp = datetime.datetime.now()
     req = requests.post(f'http://{HOSTNAME}:{PORT}/files', files=files)
     time_to_send = datetime.datetime.now() - before_timestamp
-    bytes_per_second = file_size / time_to_send.total_seconds()
-    click.echo(f' Done ({round(bytes_per_second)} bytes per second)')
+    quantity, unit = size_transmission_unit(file_size, time_to_send.total_seconds())
+    click.echo(f' Done ({round(quantity, 2)} {unit})')
+
+
+def size_transmission_unit(bytes, seconds):
+    """ Convert bytes and seconds to right-sized bitrate
+
+
+    Show mbps (megabits per second) if >= 1 mbps
+    Show kbps (kilobits per second) if 1000 bps < speed < 1 mbps
+    Show Bps (bytes per second) if < 1 kbps
+
+    Args:
+        bytes: Size of payload in bytes
+        seconds: Time to send payload in seconds
+
+    Returns:
+        Tuple (quantity:float, unit:str) where quantity is the quantity of the unit.
+        Units returned can be "mbps, kbps, or bytes/s"
+    """
+    bits = bytes * 8
+    bits_per_second = bits / seconds
+    if bits_per_second >= 1_000_000:
+        return bits_per_second / 1_000_000, 'mbps'
+    elif bits_per_second >= 1000:
+        return bits_per_second / 1000, 'kbps'
+    return bits_per_second / 8, 'bytes/s'
 
 
 if __name__ == '__main__':
